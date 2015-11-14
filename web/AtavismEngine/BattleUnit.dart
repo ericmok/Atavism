@@ -1,21 +1,6 @@
 part of AtavismEngine;
 
 
-enum AttackState {
-  READY, // State for outside handling
-  SWINGING,
-  CASTING, // State for outside handling
-  COOLDOWN
-}
-
-enum AttackType {
-  NORMAL,
-  CHEMICAL,
-  PIERCING,
-  MAGICAL,
-  SIEGE
-}
-
 enum ArmorType {
   LIGHT,
   NORMAL,
@@ -23,68 +8,6 @@ enum ArmorType {
   BUILDING
 }
 
-class Weapon {
-  AttackType attackType = AttackType.NORMAL;
-  AttackState attackState = AttackState.READY;
-  num attackSwingTime = 1;
-  num attackCooldownTime = 1;
-  num attackRange = 1;
-
-  num attackDamage = 1;
-  num attackProgress = 0;
-
-  BattleUnit owner = null;
-  BattleUnit target = null;
-
-  Weapon() {//, this.attackType, this.attackDamage, this.attackRange, this.attackSwingTime, this.attackCooldownTime}) {
-    this.attackState = AttackState.READY;
-    this.attackProgress = 0;
-  }
-
-  bool isAwaitingOnReady() {
-    return this.attackState == AttackState.READY;
-  }
-
-  bool isAwaitingOnCasting() {
-    return this.attackState == AttackState.CASTING;
-  }
-
-  void startSwing() {
-    this.attackState = AttackState.SWINGING;
-    this.attackProgress = 0;
-  }
-
-  void startCooldown() {
-    this.attackState = AttackState.COOLDOWN;
-    this.attackProgress = 0;
-  }
-
-  void update(num dt) {
-    if (this.attackState == AttackState.SWINGING) {
-      this.attackProgress += dt;
-      if (attackProgress > attackSwingTime) {
-        this.attackState = AttackState.CASTING;
-        this.attackProgress = 0;
-      }
-    }
-    if (this.attackState == AttackState.COOLDOWN) {
-      this.attackProgress += dt;
-      if (attackProgress > attackCooldownTime) {
-        this.attackState = AttackState.READY;
-        this.attackProgress = 0;
-      }
-    }
-  }
-
-  void draw(BattleUnit user, BattleUnit target, html.CanvasRenderingContext2D ctx, num dt) {
-    ctx.save();
-    ctx.fillStyle = '#FF0000';
-    Vector2 temp = target.position - user.position;
-    Vector2 normalizedTemp = temp.normalized();
-    ctx.fillRect(0.5 * temp.x + user.position.x, 0.5 * temp.y + user.position.y, 1, 1);
-    ctx.restore();
-  }
-}
 
 class Armor {
   ArmorType ARMOR_TYPE = ArmorType.LIGHT;
@@ -96,9 +19,6 @@ enum Goal {
   KILL_TARGET,
   WALKING_TO_POINT,
 }
-
-
-Weapon NORMAL_WEAPON = new Weapon();
 
 class BattleUnit {
 
@@ -115,7 +35,7 @@ class BattleUnit {
   num maxSpeed = 1;
   num turningAngle = 1;
 
-  Weapon weapon = new Weapon(); //NORMAL_WEAPON; // = new Weapon(this); //, attackType: AttackType.NORMAL, attackDamage: 1, attackRange: 1, attackSwingTime: 1, attackCooldownTime: 1);
+  Weapon weapon = new Weapon(NORMAL_WEAPON_DEF); //NORMAL_WEAPON; // = new Weapon(this); //, attackType: AttackType.NORMAL, attackDamage: 1, attackRange: 1, attackSwingTime: 1, attackCooldownTime: 1);
   Armor armor = new Armor();
 
   num hp = 1;
@@ -136,7 +56,7 @@ class BattleUnit {
   }
 
   void hurt(Weapon weapon) {
-    switch(weapon.attackType) {
+    switch(weapon.weaponDef.attackType) {
       case AttackType.NORMAL:
         break;
       case AttackType.CHEMICAL:
@@ -149,7 +69,7 @@ class BattleUnit {
         break;
     }
 
-    this.hp -= weapon.attackDamage;
+    this.hp -= weapon.weaponDef.attackDamage;
   }
 
   void onAttackCast() {
@@ -206,7 +126,7 @@ class BattleUnit {
       }
 
       if (weapon.isAwaitingOnReady()) {
-        if (position.distanceTo(target.position) > weapon.attackRange * 0.9) {
+        if (position.distanceTo(target.position) > weapon.weaponDef.attackRange * 0.9) {
           // TODO: Memory
           temp = target.position - position;
           temp.normalize();

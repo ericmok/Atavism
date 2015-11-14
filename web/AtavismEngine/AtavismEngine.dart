@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:vector_math/vector_math.dart';
 
 part 'TextureLoader.dart';
+part 'Weapons.dart';
 part 'BattleUnit.dart';
 part 'BattleSystem.dart';
 
