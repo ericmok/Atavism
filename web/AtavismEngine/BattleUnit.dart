@@ -26,13 +26,16 @@ class BattleUnit {
 
   Vector2 position = new Vector2.zero();
   Vector2 velocity = new Vector2.zero();
+  Vector2 accumulator = new Vector2.zero();
   //Vector2 orientation = new Vector2(1.0, 0.0);
   num angle = 0;
   num radius = 1;
 
+  num team = 0;
+
   Vector2 separationForce = new Vector2.zero();
 
-  num maxSpeed = 1;
+  num maxSpeed = 4;
   num turningAngle = 1;
 
   Weapon weapon = new Weapon(NORMAL_WEAPON_DEF); //NORMAL_WEAPON; // = new Weapon(this); //, attackType: AttackType.NORMAL, attackDamage: 1, attackRange: 1, attackSwingTime: 1, attackCooldownTime: 1);
@@ -40,7 +43,7 @@ class BattleUnit {
 
   num hp = 1;
 
-  num targetAcquisitionRange = 10;
+  num targetAcquisitionRange = 30;
   BattleUnit target = null;
   num minimumTargetDistance = 10000;
 
@@ -90,7 +93,7 @@ class BattleUnit {
     for (num i = 0; i < battleSystem.battleUnits.length; i++) {
       BattleUnit battleUnit = battleSystem.battleUnits[i];
 
-      if (this == battleUnit || !battleUnit.isAlive()) {
+      if (this == battleUnit || !battleUnit.isAlive() || this.team == battleUnit.team) {
         continue;
       }
 
@@ -116,16 +119,16 @@ class BattleUnit {
     separationForce.scale(0.1);
 
     battleSystem.battleUnits.forEach((BattleUnit battleUnit) {
-      if (this != battleUnit) {
+      if (this != battleUnit && this.position.distanceTo(battleUnit.position) < 1.5) {
         temp = position - battleUnit.position;
-        num distanceScale = 0.001 / (temp.x * temp.x + temp.y * temp.y);
+        num distanceScale = 0.05 / (temp.x * temp.x + temp.y * temp.y);
         temp.normalize();
         temp.scale(distanceScale);
         temp.copyInto(separationForce);
       }
     });
 
-    velocity += temp;
+    accumulator += temp;
 
     if (action == Goal.IDLE) {
       acquireTarget(battleSystem, dt);
@@ -147,7 +150,7 @@ class BattleUnit {
           temp = target.position - position;
           temp.normalize();
           temp.scale(dt);
-          velocity += temp;
+          accumulator += temp;
         } else {
           weapon.startSwing();
         }
@@ -166,6 +169,10 @@ class BattleUnit {
       }
     }
 
+    accumulator.normalize();
+    accumulator.scale(maxSpeed.toDouble() / 1000); // 1 maxSpeed = 1000 ms
+
+    velocity += accumulator;
     position = position + velocity;
     //position.setValues(position.x.toDouble() + 0.01, position.y.toDouble() + 0.01);
   }

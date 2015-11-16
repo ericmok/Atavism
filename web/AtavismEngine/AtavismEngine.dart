@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:vector_math/vector_math.dart';
 
 part 'TextureLoader.dart';
+part 'Player.dart';
 part 'Weapons.dart';
 part 'BattleUnit.dart';
 part 'BattleSystem.dart';
@@ -33,29 +34,30 @@ class AtavismEngine {
 
     TextureLoader.load();
 
-    BattleUnit battleUnit = new BattleUnit();
-    battleSystem.queueAddUnit(battleUnit);
+    BattleUnit battleUnit;
 
     battleUnit = new BattleUnit();
-    battleUnit.position.setValues(7.0, 7.0);
-    battleSystem.queueAddUnit(battleUnit);
-
-    battleUnit = new BattleUnit();
-    battleUnit.position.setValues(-2.0, -2.0);
-    battleSystem.queueAddUnit(battleUnit);
-
-    battleUnit = new BattleUnit();
+    battleUnit.team = 0;
+    battleUnit.hp = 3;
+    battleUnit.weapon.weaponDef = RIFLE_WEAPON_DEF;
     battleUnit.imageElement = html.querySelector("#marine");
     battleUnit.position.setValues(4.0, -4.0);
     battleSystem.queueAddUnit(battleUnit);
 
     battleUnit = new BattleUnit();
-    battleUnit.position.setValues(-3.0, -4.0);
+    battleUnit.team = 0;
+    battleUnit.hp = 3;
+    battleUnit.weapon.weaponDef = RIFLE_WEAPON_DEF;
+    battleUnit.imageElement = html.querySelector("#marine");
+    battleUnit.position.setValues(2.0, -2.0);
     battleSystem.queueAddUnit(battleUnit);
 
     math.Random r = new math.Random();
-    for (num i = 0; i < 8; i++) {
+    for (num i = 0; i < 24; i++) {
       battleUnit = new BattleUnit();
+      battleUnit.team = 1;
+      battleUnit.hp = 2;
+      battleUnit.maxSpeed *= 3;
       battleUnit.position.setValues(r.nextDouble() * 20 - 10, r.nextDouble() * 20 - 10);
       battleSystem.queueAddUnit(battleUnit);
     }

@@ -18,8 +18,8 @@ enum AttackType {
 
 class WeaponDef {
   AttackType attackType = AttackType.NORMAL;
-  num attackSwingTime = 1;
-  num attackCooldownTime = 1;
+  num attackSwingTime = 0.5;
+  num attackCooldownTime = 0.5;
   num attackRange = 1;
   num attackDamage = 1;
 
@@ -40,6 +40,8 @@ class WeaponDef {
 }
 
 var NORMAL_WEAPON_DEF = new WeaponDef();
+var RIFLE_WEAPON_DEF = new WeaponDef()
+    ..attackRange = 3;
 
 class Weapon {
   WeaponDef weaponDef = null;
