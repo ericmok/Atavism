@@ -26,14 +26,15 @@ class BattleUnit {
 
   Vector2 position = new Vector2.zero();
   Vector2 velocity = new Vector2.zero();
+
+  Vector2 separationForce = new Vector2.zero();
+  Vector2 enemyAttractionForce = new Vector2.zero();
   Vector2 accumulator = new Vector2.zero();
 
   num angle = 0;
   num radius = 1;
 
   num team = 0;
-
-  Vector2 separationForce = new Vector2.zero();
 
   num maxSpeed = 4;
   num turningAngle = 1;
@@ -45,7 +46,6 @@ class BattleUnit {
 
   num targetAcquisitionRange = 30;
   BattleUnit target = null;
-  num minimumTargetDistance = 10000;
 
   Vector2 destination = new Vector2.zero();
 
@@ -87,7 +87,9 @@ class BattleUnit {
   }
 
   bool acquireTarget(BattleSystem battleSystem, num dt) {
-    minimumTargetDistance = 10000;
+    bool foundTarget = false;
+
+    num minimumTargetDistance = 10000;
 
     // Then look for a target
     for (num i = 0; i < battleSystem.battleUnits.length; i++) {
@@ -105,30 +107,34 @@ class BattleUnit {
           target = battleUnit;
           action = Goal.KILL_TARGET;
           minimumTargetDistance = distance;
+          foundTarget = true;
         }
       }
     }
 
-    return true;
+    return foundTarget;
   }
 
   void update(BattleSystem battleSystem, num dt) {
 
     // Momentum
     velocity.scale(0.1);
-    separationForce.scale(0.1);
+    accumulator.setZero();
+    separationForce.setZero();
+    enemyAttractionForce.setZero();
 
     battleSystem.battleUnits.forEach((BattleUnit battleUnit) {
-      if (this != battleUnit && this.position.distanceTo(battleUnit.position) < 1.5) {
-        temp = position - battleUnit.position;
-        num distanceScale = 0.05 / (temp.x * temp.x + temp.y * temp.y);
-        temp.normalize();
-        temp.scale(distanceScale);
-        temp.copyInto(separationForce);
+      if (this != battleUnit && this.position.distanceTo(battleUnit.position) < 1) {
+        separationForce = position - battleUnit.position;
+        num distSq = separationForce.length2 + 0.000001; // To prevent divide by zero
+        num distanceScale = 0.5 / (distSq);
+        separationForce.normalize();
+        separationForce.scale(distanceScale);
+        separationForce.copyInto(separationForce);
       }
     });
 
-    accumulator += temp;
+    accumulator += separationForce;
 
     if (action == Goal.IDLE) {
       acquireTarget(battleSystem, dt);
@@ -146,11 +152,9 @@ class BattleUnit {
 
       if (weapon.isAwaitingOnReady()) {
         if (position.distanceTo(target.position) > weapon.weaponDef.attackRange * 0.9) {
-          // TODO: Memory
-          temp = target.position - position;
-          temp.normalize();
-          temp.scale(dt);
-          accumulator += temp;
+          enemyAttractionForce = target.position - position;
+          enemyAttractionForce.normalize();
+          accumulator += enemyAttractionForce;
         } else {
           weapon.startSwing();
         }
@@ -169,14 +173,26 @@ class BattleUnit {
       }
     }
 
-    accumulator.normalize();
-    accumulator.scale(maxSpeed.toDouble() / 1000); // 1 maxSpeed = 1000 ms
+    //accumulator.normalize();
+    //accumulator.scale(maxSpeed.toDouble() / 1000); // 1 maxSpeed = 1000 ms
+//    if (accumulator.length > maxSpeed) {
+//      accumulator.normalize();
+//      accumulator.scale(maxSpeed.toDouble());
+//    }
 
-    velocity += accumulator;
-    position = position + velocity;
+    velocity = accumulator;
+    position = position + velocity * dt;
     //position.setValues(position.x.toDouble() + 0.01, position.y.toDouble() + 0.01);
   }
 
+
+  void drawLineTo(num x, num y) {
+    ctx.lineWidth = 0.02;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
 
   void draw(html.CanvasRenderingContext2D ctx, num dt) {
     ctx.save();
@@ -192,7 +208,7 @@ class BattleUnit {
     }
     else {
       //desiredAngle = math.atan2(-velocity.normalized().y, velocity.normalized().x) - math.PI;
-      desiredAngle = math.atan2(velocity.normalized().x, -velocity.normalized().y);
+      desiredAngle = math.atan2(velocity.x * (1.0/dt), -velocity.y * (1.0 / dt));
     }
 
     num x1 = math.cos(angle);
