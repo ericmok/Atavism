@@ -204,7 +204,7 @@ class BattleUnit {
     //angle = desiredAngle;
     //ctx.rotate(angle + 90);
     ctx.rotate(angle);
-    ctx.drawImageToRect(imageElement, new html.Rectangle<double>(-(radius/2), -(radius/2), radius, radius));
+    ctx.drawImageToRect(imageElement, new html.Rectangle(-(radius/2), -(radius/2), radius, radius));
     ctx.restore();
 
     if (target != null) {
