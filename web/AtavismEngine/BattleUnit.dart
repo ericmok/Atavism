@@ -42,6 +42,7 @@ class BattleUnit {
 
   num targetAcquisitionRange = 10;
   BattleUnit target = null;
+  num minimumTargetDistance = 10000;
 
   Vector2 destination = new Vector2.zero();
 
@@ -82,6 +83,32 @@ class BattleUnit {
     return hp > 0;
   }
 
+  bool acquireTarget(BattleSystem battleSystem, num dt) {
+    minimumTargetDistance = 10000;
+
+    // Then look for a target
+    for (num i = 0; i < battleSystem.battleUnits.length; i++) {
+      BattleUnit battleUnit = battleSystem.battleUnits[i];
+
+      if (this == battleUnit || !battleUnit.isAlive()) {
+        continue;
+      }
+
+      num distance = position.distanceTo(battleUnit.position);
+
+      if (distance < targetAcquisitionRange) {
+
+        if (distance < minimumTargetDistance) {
+          target = battleUnit;
+          action = Goal.KILL_TARGET;
+          minimumTargetDistance = distance;
+        }
+      }
+    }
+
+    return true;
+  }
+
   void update(BattleSystem battleSystem, num dt) {
 
     // Momentum
@@ -101,18 +128,7 @@ class BattleUnit {
     velocity += temp;
 
     if (action == Goal.IDLE) {
-
-      // Then look for a target
-      battleSystem.battleUnits.forEach((BattleUnit battleUnit) {
-        if (this == battleUnit || !battleUnit.isAlive()) {
-          return;
-        }
-
-        if (position.distanceTo(battleUnit.position) < targetAcquisitionRange) {
-          target = battleUnit;
-          action = Goal.KILL_TARGET;
-        }
-      });
+      acquireTarget(battleSystem, dt);
     }
 
     if (action == Goal.KILL_TARGET) {
