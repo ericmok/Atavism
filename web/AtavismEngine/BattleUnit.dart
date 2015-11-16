@@ -27,7 +27,7 @@ class BattleUnit {
   Vector2 position = new Vector2.zero();
   Vector2 velocity = new Vector2.zero();
   Vector2 accumulator = new Vector2.zero();
-  //Vector2 orientation = new Vector2(1.0, 0.0);
+
   num angle = 0;
   num radius = 1;
 
@@ -38,7 +38,7 @@ class BattleUnit {
   num maxSpeed = 4;
   num turningAngle = 1;
 
-  Weapon weapon = new Weapon(NORMAL_WEAPON_DEF); //NORMAL_WEAPON; // = new Weapon(this); //, attackType: AttackType.NORMAL, attackDamage: 1, attackRange: 1, attackSwingTime: 1, attackCooldownTime: 1);
+  Weapon weapon = new Weapon(NORMAL_WEAPON_DEF);
   Armor armor = new Armor();
 
   num hp = 1;
