@@ -186,7 +186,7 @@ class BattleUnit {
   }
 
 
-  void drawLineTo(num x, num y) {
+  void drawLineTo(html.CanvasRenderingContext2D ctx, num x, num y) {
     ctx.lineWidth = 0.02;
     ctx.beginPath();
     ctx.moveTo(0, 0);
