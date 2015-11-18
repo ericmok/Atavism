@@ -63,8 +63,16 @@ class Weapon {
     return this.attackState == AttackState.READY;
   }
 
+  bool isSwinging() {
+    return this.attackState == AttackState.SWINGING;
+  }
+
   bool isAwaitingOnCasting() {
     return this.attackState == AttackState.CASTING;
+  }
+
+  bool isCooldown() {
+    return this.attackState == AttackState.COOLDOWN;
   }
 
   void startSwing() {
