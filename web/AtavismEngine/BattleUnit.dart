@@ -86,10 +86,11 @@ class BattleUnit {
     return hp > 0;
   }
 
-  bool acquireTarget(BattleSystem battleSystem, num dt) {
+  BattleUnit findUnitWithinRange(BattleSystem battleSystem, num searchDistance, num dt) {
     bool foundTarget = false;
 
     num minimumTargetDistance = 10000;
+    BattleUnit closestBattleUnit = null;
 
     // Then look for a target
     for (num i = 0; i < battleSystem.battleUnits.length; i++) {
@@ -101,23 +102,30 @@ class BattleUnit {
 
       num distance = position.distanceTo(battleUnit.position);
 
-      if (distance < targetAcquisitionRange) {
+      if (distance < searchDistance) {
 
         if (distance < minimumTargetDistance) {
-          target = battleUnit;
-          action = Goal.KILL_TARGET;
+          closestBattleUnit = battleUnit;
           minimumTargetDistance = distance;
           foundTarget = true;
         }
       }
     }
 
-    return foundTarget;
+    return closestBattleUnit;
   }
 
   void resetTarget() {
     target = null;
     action = Goal.IDLE;
+  }
+
+  bool resetTargetIfNullOrDead() {
+    if (target == null || !target.isAlive()) {
+      resetTarget();
+      return true;
+    }
+    return false;
   }
 
   void update(BattleSystem battleSystem, num dt) {
@@ -141,20 +149,17 @@ class BattleUnit {
 
     accumulator += separationForce;
 
+    weapon.update(dt);
+    resetTargetIfNullOrDead();
+
     if (action == Goal.IDLE) {
-      acquireTarget(battleSystem, dt);
+      target = findUnitWithinRange(battleSystem, targetAcquisitionRange, dt);
+      if (target != null) {
+        action = Goal.KILL_TARGET;
+      }
     }
 
     if (action == Goal.KILL_TARGET) {
-      // Test if given the goal, the target is non-null / alive
-
-      weapon.update(dt);
-
-      if (target == null || !target.isAlive()) {
-        action = Goal.IDLE;
-        return;
-      }
-
       if (weapon.isAwaitingOnReady()) {
         if (position.distanceTo(target.position) > weapon.weaponDef.attackRange * 0.9) {
           enemyAttractionForce = target.position - position;
@@ -162,6 +167,12 @@ class BattleUnit {
           accumulator += enemyAttractionForce;
         } else {
           weapon.startSwing();
+        }
+      }
+
+      if (weapon.isSwinging()) {
+        if (target == null || !target.isAlive()) {
+          resetTarget();
         }
       }
 
