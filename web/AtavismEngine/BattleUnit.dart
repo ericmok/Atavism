@@ -214,33 +214,28 @@ class BattleUnit {
     ctx.translate(position.x, position.y);
     num desiredAngle = 0;
 
-    // TODO: Take cross product, use the sign to add/sub angle
     if (target != null) {
       temp = target.position - position;
       temp.normalize();
-      //desiredAngle = math.atan2(-temp.y, temp.x) + math.PI;
       desiredAngle = math.atan2(temp.x, -temp.y);
+
+      num x1 = math.cos(angle);
+      num y1 = math.sin(angle);
+      num x2 = math.cos(desiredAngle);
+      num y2 = math.sin(desiredAngle);
+
+      num crossScalar = math.asin(x1 * y2 - x2 * y1);
+      if (crossScalar >= 0) {
+        angle += 5.0 * math.PI / 180.0;
+      } else {
+        angle -= 5.0 * math.PI / 180.0;
+      }
     }
     else {
-      //desiredAngle = math.atan2(-velocity.normalized().y, velocity.normalized().x) - math.PI;
-      desiredAngle = math.atan2(velocity.x * (1.0/dt), -velocity.y * (1.0 / dt));
+      // Rotate to velocity (but velocity might be zero)
+      //desiredAngle = math.atan2(velocity.x * (1.0/dt), -velocity.y * (1.0 / dt));
     }
 
-    num x1 = math.cos(angle);
-    num y1 = math.sin(angle);
-    num x2 = math.cos(desiredAngle);
-    num y2 = math.sin(desiredAngle);
-
-    num crossScalar = math.asin(x1 * y2 - x2 * y1);
-    if (crossScalar >= 0) {
-      angle += 5.0 * math.PI / 180.0;
-    } else {
-      angle -= 5.0 * math.PI / 180.0;
-    }
-
-    //angle = angle + 0.1 * (desiredAngle - angle);
-    //angle = desiredAngle;
-    //ctx.rotate(angle + 90);
     ctx.rotate(angle);
     ctx.drawImageToRect(imageElement, new html.Rectangle(-(radius/2), -(radius/2), radius, radius));
     ctx.restore();
