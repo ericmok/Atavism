@@ -36,21 +36,15 @@ class AtavismEngine {
 
     BattleUnit battleUnit;
 
-    battleUnit = new BattleUnit();
-    battleUnit.team = 0;
-    battleUnit.hp = 3;
-    battleUnit.weapon.weaponDef = RIFLE_WEAPON_DEF;
-    battleUnit.imageElement = html.querySelector("#marine");
-    battleUnit.position.setValues(4.0, -4.0);
-    battleSystem.queueAddUnit(battleUnit);
-
-    battleUnit = new BattleUnit();
-    battleUnit.team = 0;
-    battleUnit.hp = 3;
-    battleUnit.weapon.weaponDef = RIFLE_WEAPON_DEF;
-    battleUnit.imageElement = html.querySelector("#marine");
-    battleUnit.position.setValues(2.0, -2.0);
-    battleSystem.queueAddUnit(battleUnit);
+    for (num i = 0; i < 5; i++) {
+      battleUnit = new BattleUnit();
+      battleUnit.team = 0;
+      battleUnit.hp = 3;
+      battleUnit.weapon.weaponDef = RIFLE_WEAPON_DEF;
+      battleUnit.imageElement = html.querySelector("#marine");
+      battleUnit.position.setValues(i * 1.5, 0.0);
+      battleSystem.queueAddUnit(battleUnit);
+    }
 
     math.Random r = new math.Random();
     for (num i = 0; i < 24; i++) {
