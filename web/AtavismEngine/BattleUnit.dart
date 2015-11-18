@@ -115,6 +115,11 @@ class BattleUnit {
     return foundTarget;
   }
 
+  void resetTarget() {
+    target = null;
+    action = Goal.IDLE;
+  }
+
   void update(BattleSystem battleSystem, num dt) {
 
     // Momentum
@@ -165,8 +170,7 @@ class BattleUnit {
 
         if (!target.isAlive()) {
           battleSystem.queueRemoveUnit(target);
-          target = null;
-          action = Goal.IDLE;
+          resetTarget();
         }
 
         weapon.startCooldown();
