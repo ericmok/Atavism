@@ -25,6 +25,9 @@ class AtavismEngine {
 
   AtavismEngine(this.canvasElement) {
     this.ctx = this.canvasElement.getContext('2d');
+    this.canvasElement.addEventListener('contextmenu', (html.Event ev) {
+      ev.preventDefault();
+    });
     this.battleSystem = new BattleSystem(this);
   }
 
@@ -36,7 +39,7 @@ class AtavismEngine {
 
     BattleUnit battleUnit;
 
-    for (num i = 0; i < 5; i++) {
+    for (num i = -1; i <= 1; i++) {
       battleUnit = new BattleUnit();
       battleUnit.team = 0;
       battleUnit.hp = 3;
