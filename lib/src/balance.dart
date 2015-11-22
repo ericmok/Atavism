@@ -1,4 +1,4 @@
-part of AtavismEngine;
+part of atavism_engine;
 
 class Balance {
   const CHART =

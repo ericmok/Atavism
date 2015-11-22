@@ -1,15 +1,4 @@
-library AtavismEngine;
-
-import 'dart:html' as html;
-import 'dart:math' as math;
-import 'package:vector_math/vector_math.dart';
-
-part 'TextureLoader.dart';
-part 'Player.dart';
-part 'Weapons.dart';
-part 'BattleUnit.dart';
-part 'BattleSystem.dart';
-
+part of atavism_engine;
 
 class AtavismEngine {
 
