@@ -41,6 +41,13 @@ packages:
     description: path
     source: hosted
     version: "1.3.6"
+  pixi_dart:
+    description:
+      ref: null
+      resolved-ref: c470d526d7e32c97245a0c5438aeaaa7c1606b7c
+      url: "https://github.com/FedeOmoto/pixi"
+    source: git
+    version: "0.2.0+3"
   pool:
     description: pool
     source: hosted
@@ -49,6 +56,10 @@ packages:
     description: source_span
     source: hosted
     version: "1.2.1"
+  spine:
+    description: spine
+    source: hosted
+    version: "0.1.0+2"
   stack_trace:
     description: stack_trace
     source: hosted

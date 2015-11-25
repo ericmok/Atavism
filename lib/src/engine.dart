@@ -2,53 +2,63 @@ part of atavism_engine;
 
 class AtavismEngine {
 
-  html.CanvasElement canvasElement;
-  html.CanvasRenderingContext2D ctx;
+  Stage stage;
+  WebGLRenderer renderer;
+  DisplayObjectContainer sceneRoot;
 
   num start = -1;
   num previousTimeStamp = 0;
+  num frameNumber = 0;
 
   bool isRunning = false;
 
   BattleSystem battleSystem;
 
-  AtavismEngine(this.canvasElement) {
-    this.ctx = this.canvasElement.getContext('2d');
-    this.canvasElement.addEventListener('contextmenu', (html.Event ev) {
+  AtavismEngine(html.Element container) {
+    this.stage = new Stage(new Color.createRgba(200, 200, 200));
+    this.renderer = new WebGLRenderer(width: 400, height: 400, transparent: false, antialias: false, preserveDrawingBuffer: false);
+
+    this.sceneRoot = new DisplayObjectContainer();
+
+    sceneRoot.position.x = 200;
+    sceneRoot.position.y = 200;
+    sceneRoot.scale.x = 25.0;
+    sceneRoot.scale.y = 25.0;
+
+    stage.addChild(sceneRoot);
+
+    container.append(renderer.view);
+
+    renderer.view.addEventListener('contextmenu', (html.Event ev) {
       ev.preventDefault();
     });
+
     this.battleSystem = new BattleSystem(this);
   }
 
   /// Run the engine
-  void run() {
+  run() async {
     this.isRunning = true;
 
-    TextureLoader.load();
+    await TextureLoader.load();
 
     BattleUnit battleUnit;
 
     for (num i = -1; i <= 1; i++) {
-      battleUnit = new BattleUnit();
-      battleUnit.team = 0;
-      battleUnit.hp = 3;
-      battleUnit.weapon.weaponDef = RIFLE_WEAPON_DEF;
-      battleUnit.imageElement = html.querySelector("#marine");
+      battleUnit = new BattleUnit(MARINE, 0);
       battleUnit.position.setValues(i * 1.5, 0.0);
       battleSystem.queueAddUnit(battleUnit);
     }
 
     math.Random r = new math.Random();
     for (num i = 0; i < 24; i++) {
-      battleUnit = new BattleUnit();
+      battleUnit = new BattleUnit(ZUG, 1);
       battleUnit.team = 1;
-      battleUnit.hp = 2;
-      battleUnit.maxSpeed *= 3;
       battleUnit.position.setValues(r.nextDouble() * 20 - 10, r.nextDouble() * 20 - 10);
       battleSystem.queueAddUnit(battleUnit);
     }
 
-    html.window.animationFrame.then(loop);
+      html.window.animationFrame.then(loop);
   }
 
   void loop(num timeStamp) {
@@ -58,8 +68,10 @@ class AtavismEngine {
     num dt = (timeStamp - previousTimeStamp) / 1000;
     previousTimeStamp = timeStamp;
 
-    beginDrawing(dt);
     gameLoop(dt);
+
+    beginDrawing(dt);
+    renderer.render(stage);
     endDrawing();
 
     html.window.animationFrame.then(loop);
@@ -70,14 +82,10 @@ class AtavismEngine {
   }
 
   void beginDrawing(num dt) {
-    ctx.save();
-    ctx.fillStyle = '#fefefe';
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.translate(canvasElement.width / 2, canvasElement.height / 2);
-    ctx.scale(25, 25);
+    // Camera
+    // ctx.translate(canvasElement.width / 2, canvasElement.height / 2);
   }
 
   void endDrawing() {
-    ctx.restore();
   }
 }

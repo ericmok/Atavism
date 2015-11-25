@@ -11,6 +11,8 @@ dependencies:
   browser: '>=0.10.0 <0.11.0'
   dart_to_js_script_rewriter: '^0.1.0'
   vector_math: any
+  pixi_dart:
+    git: https://github.com/FedeOmoto/pixi
 
 transformers:
 - dart_to_js_script_rewriter

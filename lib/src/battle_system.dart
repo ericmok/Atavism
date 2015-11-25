@@ -27,6 +27,7 @@ class BattleSystem {
       return battleUnitsToRemove.contains(test);
     });
     battleUnitsToRemove.forEach((BattleUnit battleUnit) {
+      atavismEngine.sceneRoot.removeChild(battleUnit.sprite);
       switch (battleUnit.team) {
         case 0:
           player0.units.remove(battleUnit);
@@ -40,6 +41,7 @@ class BattleSystem {
 
     battleUnits.addAll(battleUnitsToAdd);
     battleUnitsToAdd.forEach((BattleUnit battleUnit) {
+      atavismEngine.sceneRoot.addChild(battleUnit.sprite);
       switch (battleUnit.team) {
         case 0:
           player0.units.add(battleUnit);
@@ -57,7 +59,7 @@ class BattleSystem {
 
     battleUnits.forEach((BattleUnit battleUnit) {
       battleUnit.update(this, dt);
-      battleUnit.draw(atavismEngine.ctx, dt);
+      //battleUnit.draw(atavismEngine.ctx, dt);
     });
   }
 }

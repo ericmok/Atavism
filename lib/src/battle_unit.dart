@@ -1,24 +1,33 @@
 part of atavism_engine;
 
 
-enum ArmorType {
-  LIGHT,
-  NORMAL,
-  HEAVY,
-  BUILDING
-}
-
-
-class Armor {
-  ArmorType ARMOR_TYPE = ArmorType.LIGHT;
-  num armorAmount = 0;
-}
-
 enum Goal {
   IDLE,
   KILL_TARGET,
   WALKING_TO_POINT,
 }
+
+enum UnitType {
+  ZUG,
+  MARINE
+}
+
+class BattleUnitDef {
+  num maxSpeed = 4;
+  num hp = 1;
+  num targetAcquisitionRange = 30;
+  WeaponDef weaponDef = NORMAL_WEAPON_DEF;
+  String spriteAssetName;
+  UnitType unitType;
+
+  BattleUnitDef();
+
+  BattleUnitDef.construct(this.maxSpeed, this.hp, this.targetAcquisitionRange, this.weaponDef, this.spriteAssetName, this.unitType) {}
+}
+
+BattleUnitDef ZUG = new BattleUnitDef.construct(8, 1, 30, NORMAL_WEAPON_DEF, TextureLoader.ZUG, UnitType.ZUG);
+BattleUnitDef MARINE = new BattleUnitDef.construct(3, 2, 30, RIFLE_WEAPON_DEF, TextureLoader.MARINE, UnitType.MARINE);
+
 
 class BattleUnit {
 
@@ -39,7 +48,7 @@ class BattleUnit {
   num maxSpeed = 4;
   num turningAngle = 1;
 
-  Weapon weapon = new Weapon(NORMAL_WEAPON_DEF);
+  Weapon weapon;// = new Weapon(NORMAL_WEAPON_DEF);
   Armor armor = new Armor();
 
   num hp = 1;
@@ -51,9 +60,23 @@ class BattleUnit {
 
   Goal action = Goal.IDLE;
 
-  html.ImageElement imageElement = TextureLoader.ZUG_IMAGE;
+  var unitType = UnitType.ZUG;
+  //html.ImageElement imageElement = TextureLoader.ZUG_IMAGE;
 
-  BattleUnit() {
+  Sprite sprite;
+
+  BattleUnit(BattleUnitDef battleUnitDef, num team) {
+    this.maxSpeed = battleUnitDef.maxSpeed;
+    this.hp = battleUnitDef.hp;
+    this.targetAcquisitionRange = battleUnitDef.targetAcquisitionRange;
+    this.weapon = new Weapon(battleUnitDef.weaponDef, this);
+    this.sprite = new Sprite.fromImage(battleUnitDef.spriteAssetName);
+    //this.sprite = new Sprite.fromImage('assets/Marine/test.png');
+    this.sprite.pivot.x = 128;
+    this.sprite.pivot.y = 128;
+    this.sprite.width = 1;
+    this.sprite.height = 1;
+    this.team = team;
   }
 
   void attack(BattleUnit other) {
@@ -198,20 +221,11 @@ class BattleUnit {
     velocity = accumulator;
     position = position + velocity * dt;
     //position.setValues(position.x.toDouble() + 0.01, position.y.toDouble() + 0.01);
+
+    updateSprite(battleSystem, dt);
   }
 
-
-  void drawLineTo(html.CanvasRenderingContext2D ctx, num x, num y) {
-    ctx.lineWidth = 0.02;
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  }
-
-  void draw(html.CanvasRenderingContext2D ctx, num dt) {
-    ctx.save();
-    ctx.translate(position.x, position.y);
+  void updateSprite(BattleSystem battleSystem, num dt) {
     num desiredAngle = 0;
 
     if (target != null) {
@@ -236,12 +250,22 @@ class BattleUnit {
       //desiredAngle = math.atan2(velocity.x * (1.0/dt), -velocity.y * (1.0 / dt));
     }
 
-    ctx.rotate(angle);
-    ctx.drawImageToRect(imageElement, new html.Rectangle(-(radius/2), -(radius/2), radius, radius));
-    ctx.restore();
+    sprite.position.x = position.x;
+    sprite.position.y = position.y;
+    sprite.rotation = angle;
 
-    if (target != null) {
-      weapon.draw(this, target, ctx, dt);
-    }
+    //if (target != null) {
+      weapon.draw(battleSystem.atavismEngine.sceneRoot, dt);
+    //   weapon.draw(this, target, ctx, dt);
+    //}
   }
+
+  void drawLineTo(html.CanvasRenderingContext2D ctx, num x, num y) {
+    ctx.lineWidth = 0.02;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
+
 }

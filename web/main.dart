@@ -5,7 +5,7 @@ import 'dart:html' as html;
 import 'package:atavism_engine/atavism_engine.dart';
 
 void main() {
-  html.CanvasElement canvas = html.querySelector('#canvas');
+  html.CanvasElement canvas = html.querySelector('#output');
 
   AtavismEngine atavismEngine = new AtavismEngine(canvas);
   atavismEngine.run();
